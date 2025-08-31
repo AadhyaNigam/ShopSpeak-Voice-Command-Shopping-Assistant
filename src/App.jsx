@@ -116,11 +116,15 @@ export default function App(){
     <div className="container">
       {/* header */}
       <div className="header">
-        <div className="logo">SS</div>
-        <div className="title">ShopSpeak 🛒🎤</div>
+        <div className="header-left">
+          <img src="/voice assistant.png" alt="ShopSpeak Logo" className="logo" />
+        </div>
+        <div className="title">ShopSpeak 🛒</div>
+        <div className="header-right">
         <button className="theme-toggle" onClick={toggleTheme}>
           {theme === "light" ? "🌙" : "☀️"}
         </button>
+        </div>
       </div>
 
       {/* voice strip */}
