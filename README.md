@@ -23,7 +23,13 @@ ShopSpeak is a multilingual, voice-powered shopping assistant built with React (
 
 <br><br>
 📸 Screenshots
-<br><br>
+<br>
+Logo:
+<br>
+<img width="720" height="1024" alt="voice assistant" src="https://github.com/user-attachments/assets/78c6993a-b583-4a4c-b689-055ce7569264" />
+<br>
+Preview:
+<br>
 <img width="1564" height="897" alt="Screenshot 2025-08-31 230217" src="https://github.com/user-attachments/assets/7c763f1a-b87a-45df-ab59-075c35a53469" />
 
 <br><br>
