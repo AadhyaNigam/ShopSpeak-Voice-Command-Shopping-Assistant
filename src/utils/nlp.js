@@ -4,7 +4,11 @@
 // Supported languages: en, hi, ta, te, gu (use locale codes for SpeechRecognition but pass lang code to parser)
 // Example recognized commands:
 // "Add 4 apples", "I want two bottles of water", "Remove milk", "Clear list", "Find organic apples under 5"
+<<<<<<< HEAD
 
+=======
+import { getCategoryForItem } from "./categories";
+>>>>>>> 6c3343a (Reinitialize project with NLP category fix)
 const NUMBER_WORDS = {
   en: { one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10 },
   hi: { एक:1,दो:2,दो:2,'तीन':3,'चार':4,'पांच':5,'पाँच':5,'छह':6,'सात':7,'आठ':8,'नौ':9,'दस':10 },
@@ -104,15 +108,28 @@ export function processVoiceCommand(rawText, locale='en-US'){
   if(includesAny(t, ADD_WORDS[lang] || ADD_WORDS['en']) || /^\d+\s/.test(t) ) {
     const qty = parseNumberWords(t, lang) || 1;
     const item = getItemFromText(t);
+<<<<<<< HEAD
     return { action: 'add', item, qty };
+=======
+    const category = getCategoryForItem(item);
+    return { action: 'add', item, qty, category };
+>>>>>>> 6c3343a (Reinitialize project with NLP category fix)
   }
 
   // fallback: if starts with a number or noun, treat as add
   const qty2 = parseNumberWords(t, lang);
+<<<<<<< HEAD
   if(qty2 || /^[a-z\u0900-\u097F\u0B80-\u0BFF\u0C00-\u0C7F\u0A80-\u0AFF]/i.test(t)){
     const qty = qty2 || 1;
     const item = getItemFromText(t);
     return { action: 'add', item, qty };
+=======
+  if (qty2 || /^[a-z\u0900-\u097F\u0B80-\u0BFF\u0C00-\u0C7F\u0A80-\u0AFF]/i.test(t)) {
+    const qty = qty2 || 1;
+    const item = getItemFromText(t);
+    const category = getCategoryForItem(item);
+    return { action: 'add', item, qty, category };
+>>>>>>> 6c3343a (Reinitialize project with NLP category fix)
   }
 
   return { action: 'unknown' };

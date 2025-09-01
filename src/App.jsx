@@ -2,6 +2,10 @@ import React, { useEffect, useState, useRef } from "react";
 import { createSpeechRecognizer } from "./services/speech";
 import { processVoiceCommand } from "./utils/nlp";
 import { FaMicrophone, FaShoppingCart, FaLightbulb, FaUtensils, FaTrash } from "react-icons/fa";
+<<<<<<< HEAD
+=======
+import { getCategoryForItem } from "./utils/categories";
+>>>>>>> 6c3343a (Reinitialize project with NLP category fix)
 
 /* Expanded grocery items grouped by category */
 const GROCERY = {
@@ -72,7 +76,12 @@ export default function App(){
   const handleParsed = (parsed) => {
     if(!parsed || !parsed.action) return;
     if(parsed.action === 'add'){
+<<<<<<< HEAD
       addItem(parsed.item, parsed.qty || 1, parsed.category || 'General');
+=======
+      const category = getCategoryForItem(parsed.item); // ✅ find real category
+      addItem(parsed.item, parsed.qty || 1, category);
+>>>>>>> 6c3343a (Reinitialize project with NLP category fix)
     } else if(parsed.action === 'remove'){
       removeItemByName(parsed.item);
     } else if(parsed.action === 'clear'){
