@@ -1,11 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
 import { createSpeechRecognizer } from "./services/speech";
 import { processVoiceCommand } from "./utils/nlp";
-import { FaMicrophone, FaShoppingCart, FaLightbulb, FaUtensils, FaTrash } from "react-icons/fa";
-<<<<<<< HEAD
-=======
 import { getCategoryForItem } from "./utils/categories";
->>>>>>> 6c3343a (Reinitialize project with NLP category fix)
+import {
+  FaMicrophone,
+  FaShoppingCart,
+  FaLightbulb,
+  FaUtensils,
+  FaTrash,
+} from "react-icons/fa";
 
 /* Expanded grocery items grouped by category */
 const GROCERY = {
@@ -19,32 +22,36 @@ const GROCERY = {
 
 const STORAGE_KEY = "shopspeak_state_v1";
 
-export default function App(){
+export default function App() {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
   const [listening, setListening] = useState(false);
   const [language, setLanguage] = useState("en-US");
   const recRef = useRef(null);
 
+  // Login state
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
+
   // shopping list state persisted
   const [shoppingList, setShoppingList] = useState(() => {
-    try{
+    try {
       const raw = localStorage.getItem(STORAGE_KEY);
       return raw ? JSON.parse(raw).shoppingList || [] : [];
-    } catch(e){
+    } catch (e) {
       return [];
     }
   });
 
-  useEffect(()=> {
-    if(theme === "dark") document.body.classList.add("dark");
+  useEffect(() => {
+    if (theme === "dark") document.body.classList.add("dark");
     else document.body.classList.remove("dark");
   }, [theme]);
 
-  useEffect(()=> {
+  useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ shoppingList }));
   }, [shoppingList]);
 
-  // theme toggle (persist)
+  // theme toggle
   const toggleTheme = () => {
     const next = theme === "light" ? "dark" : "light";
     setTheme(next);
@@ -57,14 +64,19 @@ export default function App(){
       recRef.current = createSpeechRecognizer(language);
       setListening(true);
       recRef.current.onresult = (e) => {
-        const transcript = Array.from(e.results).map(r => r[0].transcript).join(" ");
+        const transcript = Array.from(e.results)
+          .map((r) => r[0].transcript)
+          .join(" ");
         if (e.results[0].isFinal) {
           const parsed = processVoiceCommand(transcript, language);
           handleParsed(parsed);
           setListening(false);
         }
       };
-      recRef.current.onerror = () => { setListening(false); alert("Speech error"); };
+      recRef.current.onerror = () => {
+        setListening(false);
+        alert("Speech error");
+      };
       recRef.current.onend = () => setListening(false);
       recRef.current.start();
     } catch (err) {
@@ -74,52 +86,84 @@ export default function App(){
 
   // handle parsed command
   const handleParsed = (parsed) => {
-    if(!parsed || !parsed.action) return;
-    if(parsed.action === 'add'){
-<<<<<<< HEAD
-      addItem(parsed.item, parsed.qty || 1, parsed.category || 'General');
-=======
-      const category = getCategoryForItem(parsed.item); // ✅ find real category
+    if (!parsed || !parsed.action) return;
+    if (parsed.action === "add") {
+      const category =
+        parsed.category || getCategoryForItem(parsed.item) || "General";
       addItem(parsed.item, parsed.qty || 1, category);
->>>>>>> 6c3343a (Reinitialize project with NLP category fix)
-    } else if(parsed.action === 'remove'){
+    } else if (parsed.action === "remove") {
       removeItemByName(parsed.item);
-    } else if(parsed.action === 'clear'){
+    } else if (parsed.action === "clear") {
       clearAll();
-    } else if(parsed.action === 'search'){
-      // optional: show search results (not implemented)
-      alert("Search: " + (parsed.search || ''));
+    } else if (parsed.action === "search") {
+      alert("Search: " + (parsed.search || ""));
     }
   };
 
   // add item
-  const addItem = (name, qty=1, category='General') => {
-    if(!name) return;
+  const addItem = (name, qty = 1, category = "General") => {
+    if (!name) return;
     const clean = name.trim();
-    setShoppingList(prev => {
-      const found = prev.find(p => p.name.toLowerCase() === clean.toLowerCase());
-      if(found){
-        return prev.map(p => p.name.toLowerCase() === clean.toLowerCase() ? {...p, qty: p.qty + qty} : p);
+    setShoppingList((prev) => {
+      const found = prev.find(
+        (p) => p.name.toLowerCase() === clean.toLowerCase()
+      );
+      if (found) {
+        return prev.map((p) =>
+          p.name.toLowerCase() === clean.toLowerCase()
+            ? { ...p, qty: p.qty + qty }
+            : p
+        );
       }
-      return [...prev, { id: Date.now().toString(36), name: clean, qty, category }];
+      return [
+        ...prev,
+        { id: Date.now().toString(36), name: clean, qty, category },
+      ];
     });
   };
 
   const removeItemByName = (name) => {
-    if(!name) return;
-    setShoppingList(prev => prev.filter(p => p.name.toLowerCase() !== name.toLowerCase()));
+    if (!name) return;
+    setShoppingList((prev) =>
+      prev.filter((p) => p.name.toLowerCase() !== name.toLowerCase())
+    );
   };
 
   const updateQty = (id, delta) => {
-    setShoppingList(prev => prev.map(p => p.id === id ? {...p, qty: Math.max(1, p.qty + delta)} : p));
+    setShoppingList((prev) =>
+      prev.map((p) =>
+        p.id === id ? { ...p, qty: Math.max(1, p.qty + delta) } : p
+      )
+    );
   };
 
   const clearAll = () => {
     setShoppingList([]);
   };
 
-  // helper to add from chips
-  const addFromChip = (name, category) => addItem(name,1,category);
+  const addFromChip = (name, category) => addItem(name, 1, category);
+
+  // --- Login Page ---
+  if (!isLoggedIn) {
+    return (
+      <div className="login-container">
+        <h2>Welcome to ShopSpeak 🛒🎤</h2>
+        <input
+          type="text"
+          placeholder="Enter your name"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <button
+          onClick={() => {
+            if (username.trim()) setIsLoggedIn(true);
+          }}
+        >
+          Login
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="container">
@@ -130,21 +174,25 @@ export default function App(){
         </div>
         <div className="title">ShopSpeak 🛒</div>
         <div className="header-right">
-        <button className="theme-toggle" onClick={toggleTheme}>
-          {theme === "light" ? "🌙" : "☀️"}
-        </button>
+          <button className="theme-toggle" onClick={toggleTheme}>
+            {theme === "light" ? "🌙" : "☀️"}
+          </button>
         </div>
       </div>
 
       {/* voice strip */}
       <div className="voice-strip">
-        <h2 style={{margin:0}}><FaMicrophone style={{marginRight:8}}/> Voice Search</h2>
-
+        <h2 style={{ margin: 0 }}>
+          <FaMicrophone style={{ marginRight: 8 }} /> Voice Search
+        </h2>
         <button className="btn btn-blue" onClick={startListening}>
           {listening ? "Listening…" : "Speak"}
         </button>
-
-        <select className="dropdown" value={language} onChange={(e)=>setLanguage(e.target.value)}>
+        <select
+          className="dropdown"
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
+        >
           <option value="en-US">English</option>
           <option value="hi-IN">Hindi</option>
           <option value="ta-IN">Tamil</option>
@@ -155,28 +203,35 @@ export default function App(){
 
       {/* main layout */}
       <div className="main-layout">
-        {/* left sidebar: suggestions + categories */}
+        {/* left sidebar */}
         <div className="sidebar">
           <div className="card">
-            <h3><FaLightbulb style={{marginRight:8}}/> Smart Suggestions</h3>
+            <h3>
+              <FaLightbulb style={{ marginRight: 8 }} /> Smart Suggestions
+            </h3>
             <div className="chips">
-              <button className="chip chip-blue" onClick={()=>addFromChip("Milk 1L","Dairy")}>Milk 1L</button>
-              <button className="chip chip-pink" onClick={()=>addFromChip("Brown Bread","Bakery")}>Brown Bread</button>
-              <button className="chip chip-yellow" onClick={()=>addFromChip("Eggs (12)","Pantry")}>Eggs (12)</button>
-              <button className="chip chip-blue" onClick={()=>addFromChip("Almond Milk 1L","Dairy")}>Almond Milk 1L</button>
-              <button className="chip chip-pink" onClick={()=>addFromChip("Basmati Rice 5kg","Pantry")}>Basmati Rice 5kg</button>
+              <button className="chip chip-blue" onClick={() => addFromChip("Milk 1L","Dairy")}>Milk 1L</button>
+              <button className="chip chip-pink" onClick={() => addFromChip("Brown Bread","Bakery")}>Brown Bread</button>
+              <button className="chip chip-yellow" onClick={() => addFromChip("Eggs (12)","Pantry")}>Eggs (12)</button>
+              <button className="chip chip-blue" onClick={() => addFromChip("Almond Milk 1L","Dairy")}>Almond Milk 1L</button>
+              <button className="chip chip-pink" onClick={() => addFromChip("Basmati Rice 5kg","Pantry")}>Basmati Rice 5kg</button>
             </div>
           </div>
 
           <div className="card">
-            <h3><FaUtensils style={{marginRight:8}}/> Grocery Categories</h3>
-
+            <h3>
+              <FaUtensils style={{ marginRight: 8 }} /> Grocery Categories
+            </h3>
             {Object.entries(GROCERY).map(([cat, items]) => (
-              <div key={cat} style={{marginBottom:10}}>
-                <strong style={{display:'block', marginBottom:6}}>{cat}</strong>
+              <div key={cat} style={{ marginBottom: 10 }}>
+                <strong style={{ display: "block", marginBottom: 6 }}>{cat}</strong>
                 <div className="chips">
-                  {items.map(it => (
-                    <button key={it} className={`chip ${cat === 'Dairy' ? 'chip-blue' : cat === 'Produce' ? 'chip-yellow' : cat === 'Snacks' ? 'chip-pink' : (cat === 'Pantry' ? 'chip-blue' : 'chip-pink')}`} onClick={()=>addFromChip(it,cat)}>
+                  {items.map((it) => (
+                    <button
+                      key={it}
+                      className={`chip ${cat === "Dairy" ? "chip-blue" : cat === "Produce" ? "chip-yellow" : cat === "Snacks" ? "chip-pink" : cat === "Pantry" ? "chip-blue" : "chip-pink"}`}
+                      onClick={() => addFromChip(it, cat)}
+                    >
                       {it}
                     </button>
                   ))}
@@ -189,14 +244,18 @@ export default function App(){
         {/* main area: shopping list */}
         <div className="main-area">
           <div className="card list-card">
-            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-              <h3 style={{margin:0}}><FaShoppingCart style={{marginRight:8}}/> Shopping List</h3>
-              <div style={{display:'flex',gap:8,alignItems:'center'}}>
-                <button className="clear-all" onClick={clearAll}><FaTrash/> Clear All</button>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h3 style={{ margin: 0 }}>
+                <FaShoppingCart style={{ marginRight: 8 }} /> Shopping List
+              </h3>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <button className="clear-all" onClick={clearAll}>
+                  <FaTrash /> Clear All
+                </button>
               </div>
             </div>
 
-            <table className="list-table" style={{width:'100%', marginTop:12}}>
+            <table className="list-table" style={{ width: "100%", marginTop: 12 }}>
               <thead>
                 <tr>
                   <th>Purchase</th>
@@ -207,33 +266,33 @@ export default function App(){
               </thead>
               <tbody>
                 {shoppingList.length === 0 && (
-                  <tr><td colSpan="4" style={{padding:16, textAlign:'center', color:'var(--muted)'}}>Your list is empty.</td></tr>
+                  <tr>
+                    <td colSpan="4" style={{ padding: 16, textAlign: "center", color: "var(--muted)" }}>
+                      Your list is empty.
+                    </td>
+                  </tr>
                 )}
-                {shoppingList.map(item => (
+                {shoppingList.map((item) => (
                   <tr key={item.id}>
                     <td>{item.name}</td>
                     <td>
                       <div className="qty-controls">
-                        <button onClick={()=>updateQty(item.id, -1)}>-</button>
-                        <span style={{minWidth:26, display:'inline-block', textAlign:'center'}}>{item.qty}</span>
-                        <button onClick={()=>updateQty(item.id, 1)}>+</button>
+                        <button onClick={() => updateQty(item.id, -1)}>-</button>
+                        <span style={{ minWidth: 26, display: "inline-block", textAlign: "center" }}>{item.qty}</span>
+                        <button onClick={() => updateQty(item.id, 1)}>+</button>
                       </div>
                     </td>
                     <td>{item.category}</td>
                     <td>
-                      <button className="remove-btn" onClick={()=>removeItemByName(item.name)}>Remove</button>
+                      <button className="remove-btn" onClick={() => removeItemByName(item.name)}>Remove</button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-
           </div>
         </div>
       </div>
-
-      {/* toast */}
-      {/* simple inline toast - optional */}
     </div>
   );
 }

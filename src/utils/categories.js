@@ -1,20 +1,12 @@
-export const categories = {
-  Dairy: ["milk", "cheese", "yogurt", "paneer", "butter"],
-  Produce: ["apple", "banana", "mango", "tomato", "onion", "potato", "spinach", "cucumber"],
-  Snacks: ["chips", "cookies", "chocolate", "nuts", "popcorn"],
-  Beverages: ["juice", "soda", "coffee", "tea", "water"],
-  Pantry: ["rice", "oil", "pasta", "ketchup", "sugar", "salt"],
-  Bakery: ["bread", "bagel", "croissant", "bun"]
-};
-
-// Returns category for a given item name
-export function getCategoryForItem(itemName) {
-  if (!itemName) return "General";
-  const lower = itemName.toLowerCase();
-  for (const [cat, items] of Object.entries(categories)) {
-    if (items.some(it => lower.includes(it))) {
-      return cat;
-    }
-  }
+// Category mapping function for NLP
+export function getCategoryForItem(item) {
+  if (!item) return "General";
+  const text = item.toLowerCase();
+  if (["milk","cheese","yogurt","paneer","butter","cream","almond milk"].some(k=>text.includes(k))) return "Dairy";
+  if (["apple","banana","mango","tomato","onion","potato","spinach","cucumber"].some(k=>text.includes(k))) return "Produce";
+  if (["chips","cookies","chocolate","nuts","popcorn"].some(k=>text.includes(k))) return "Snacks";
+  if (["juice","soda","coffee","tea","water"].some(k=>text.includes(k))) return "Beverages";
+  if (["rice","oil","pasta","ketchup","sugar","salt","eggs"].some(k=>text.includes(k))) return "Pantry";
+  if (["bread","bagel","croissant"].some(k=>text.includes(k))) return "Bakery";
   return "General";
 }
